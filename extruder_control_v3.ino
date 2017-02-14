@@ -19,23 +19,20 @@ Adafruit_StepperMotor *myMotor = AFMS.getStepper(10285, 2);
 
 const int topButtonPin = 7; // buttons to these pins
 const int bottomButtonPin = 6;
-const int potPin = 0; // potentionmeter to this analog pin on the arduino
+const int potPin = A2; // potentionmeter to this analog pin on the arduino
 float stepSpeed = 0; // e.g. 500 = 1 rpm
 const int numberOfSteps = 50;
 int potValue = 0;
 
-int driveDirection = BACKWARD;
-
-boolean goingUP = false;
-boolean goingDown = true;
 int topButtonState = 0;
 int bottomButtonState = 0;
-int topButtonWas = 0;
-int bottomButtonWas = 0;
+int lastTopButtonState = 0;
+int lastBottomButtonState = 0;
 
-// counter
-unsigned long previousMillis = 0;        // will store last time LED was updated
-const long interval = 200;           // interval in milliseconds
+boolean goUp = false;
+boolean goDown = false;
+
+int driveDirection = BACKWARD;
 
 void setup() {
   Serial.begin(9600);
@@ -44,9 +41,6 @@ void setup() {
   // setting up pin modes
   pinMode(topButtonPin, INPUT);
   pinMode(bottomButtonPin, INPUT);
-
-  //set default level for top button
-  //digitalWrite(topButtonPin, HIGH);
 
   // set initial motor speed
   myMotor->setSpeed(0);
@@ -59,14 +53,13 @@ void loop() {
   potValue = analogRead(potPin);
   Serial.print("POTENTIOMETER: ");
   Serial.print(potValue);
-  //Serial.println("");
-
+  //delay(1);
 
   if (potValue <= 23 || potValue > 1023) {
     stepSpeed = 0;
   }
   else if (potValue > 23 && potValue <= 123) {
-    stepSpeed = 0.25; // TODO: should we start at 50 and end at 500 instead?
+    stepSpeed = 0.25;
   }
   else if (potValue > 123 && potValue <= 223) {
     stepSpeed = 0.5;
@@ -94,6 +87,8 @@ void loop() {
   }
   else if (potValue > 923 && potValue <= 1023) {
     stepSpeed = 2.5;
+  } else {
+    //nothing
   }
 
   //set motor speed
@@ -101,13 +96,6 @@ void loop() {
   Serial.print("\t");    // prints a tab
   Serial.print("STEP SPEED: ");
   Serial.print(stepSpeed);
-
-  // timer
-  unsigned long currentMillis = millis();
-
-  // store last button state
-  topButtonWas = topButtonState;
-  bottomButtonWas = bottomButtonState;
 
   // read buttons
   topButtonState = digitalRead(topButtonPin);
@@ -120,59 +108,39 @@ void loop() {
   Serial.print("BOTTOM BUTTON: ");
   Serial.print(bottomButtonState);
 
-//  if (topButtonState == HIGH && bottomButtonState == LOW && currentMillis - previousMillis >= interval) {
-//    driveDirection = BACKWARD;
-//    previousMillis = currentMillis;
-//  }
-//  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == LOW && currentMillis - previousMillis >= interval) {
-//    driveDirection = BACKWARD;
-//    previousMillis = currentMillis;
-//  }
-//  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == HIGH && currentMillis - previousMillis >= interval) {
-//    driveDirection = BACKWARD;
-//    previousMillis = currentMillis;
-//  }
-//  else if (topButtonState == LOW && bottomButtonState == HIGH && currentMillis - previousMillis >= interval) {
-//    driveDirection = FORWARD;
-//    previousMillis = currentMillis;
-//  }
-//  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == HIGH && currentMillis - previousMillis >= interval) {
-//    driveDirection = FORWARD;
-//    previousMillis = currentMillis;
-//  }
-//  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == LOW && currentMillis - previousMillis >= interval) {
-//    driveDirection = FORWARD;
-//    previousMillis = currentMillis;
-//  }
-  //  else {
-  //    driveDirection = FORWARD;
-  //  }
+  //checking button state
+  if (topButtonState != lastTopButtonState) {
+    if (topButtonState == HIGH) {
+      topButtonState = HIGH;
+      goDown = true;
+      goUp = false;
+    } else {
+      topButtonState = LOW;
+    }
+  } else {
+    //nothing
+  }
+  lastTopButtonState = topButtonState;
 
-  if (topButtonState == HIGH && bottomButtonState == LOW) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
+  if (bottomButtonState != lastBottomButtonState) {
+    if (bottomButtonState == HIGH) {
+      bottomButtonState = HIGH;
+      goUp = true;
+      goDown = false;
+    } else {
+      bottomButtonState == LOW;
+    }
+  } else {
+    //nothing
   }
-  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == LOW) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == HIGH) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == HIGH) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == HIGH) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == LOW) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
+  lastBottomButtonState = bottomButtonState;
 
+  // GO UP OR DOWN
+  if (goUp == true) {
+    driveDirection = FORWARD;
+  } else {
+    driveDirection = BACKWARD;
+  }
 
   myMotor->step(numberOfSteps, driveDirection, DOUBLE);
   Serial.print("\t");    // prints a tab
