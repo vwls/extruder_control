@@ -19,7 +19,7 @@ Adafruit_StepperMotor *myMotor = AFMS.getStepper(10285, 2);
 
 const int topButtonPin = 7; // buttons to these pins
 const int bottomButtonPin = 6;
-const int potPin = A2; // potentionmeter to this analog pin on the arduino
+const int potPin = 2; // potentionmeter to this analog pin on the arduino
 float stepSpeed = 0; // e.g. 500 = 1 rpm
 const int numberOfSteps = 50;
 int potValue = 0;
@@ -51,6 +51,7 @@ void setup() {
 void loop() {
   // get potentiometer value
   potValue = analogRead(potPin);
+  potValue = map(potValue, 0, 1023, 1023, 0); //re-ordering sensor max and min so knob turns in "right" direction
   Serial.print("POTENTIOMETER: ");
   Serial.print(potValue);
   //delay(1);
