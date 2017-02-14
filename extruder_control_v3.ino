@@ -24,14 +24,14 @@ float stepSpeed = 0; // e.g. 500 = 1 rpm
 const int numberOfSteps = 50;
 int potValue = 0;
 
-int driveDirection = FORWARD;
+int driveDirection = BACKWARD;
 
 boolean goingUP = false;
 boolean goingDown = true;
-int topButtonState;
-int bottomButtonState;
-int topButtonWas;
-int bottomButtonWas;
+int topButtonState = 0;
+int bottomButtonState = 0;
+int topButtonWas = 0;
+int bottomButtonWas = 0;
 
 // counter
 unsigned long previousMillis = 0;        // will store last time LED was updated
@@ -46,7 +46,7 @@ void setup() {
   pinMode(bottomButtonPin, INPUT);
 
   //set default level for top button
-  digitalWrite(topButtonPin, HIGH);
+  //digitalWrite(topButtonPin, HIGH);
 
   // set initial motor speed
   myMotor->setSpeed(0);
@@ -58,7 +58,6 @@ void loop() {
   // get potentiometer value
   potValue = analogRead(potPin);
   Serial.print("POTENTIOMETER: ");
-  Serial.print("\t");    // prints a tab
   Serial.print(potValue);
   //Serial.println("");
 
@@ -99,8 +98,8 @@ void loop() {
 
   //set motor speed
   myMotor->setSpeed(stepSpeed);
-  Serial.print("STEP SPEED: ");
   Serial.print("\t");    // prints a tab
+  Serial.print("STEP SPEED: ");
   Serial.print(stepSpeed);
 
   // timer
@@ -113,38 +112,71 @@ void loop() {
   // read buttons
   topButtonState = digitalRead(topButtonPin);
   bottomButtonState = digitalRead(bottomButtonPin);
+  Serial.print("\t");    // prints a tab
+  Serial.print("TOP BUTTON: ");
+  Serial.print(topButtonState);
 
-  if (topButtonState == HIGH && bottomButtonState == LOW && currentMillis - previousMillis >= interval) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == LOW && currentMillis - previousMillis >= interval) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == HIGH && currentMillis - previousMillis >= interval) {
-    driveDirection = FORWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == HIGH && currentMillis - previousMillis >= interval) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == HIGH && currentMillis - previousMillis >= interval) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
-  }
-  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == LOW && currentMillis - previousMillis >= interval) {
-    driveDirection = BACKWARD;
-    previousMillis = currentMillis;
-  }
+  Serial.print("\t");    // prints a tab
+  Serial.print("BOTTOM BUTTON: ");
+  Serial.print(bottomButtonState);
+
+//  if (topButtonState == HIGH && bottomButtonState == LOW && currentMillis - previousMillis >= interval) {
+//    driveDirection = BACKWARD;
+//    previousMillis = currentMillis;
+//  }
+//  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == LOW && currentMillis - previousMillis >= interval) {
+//    driveDirection = BACKWARD;
+//    previousMillis = currentMillis;
+//  }
+//  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == HIGH && currentMillis - previousMillis >= interval) {
+//    driveDirection = BACKWARD;
+//    previousMillis = currentMillis;
+//  }
+//  else if (topButtonState == LOW && bottomButtonState == HIGH && currentMillis - previousMillis >= interval) {
+//    driveDirection = FORWARD;
+//    previousMillis = currentMillis;
+//  }
+//  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == HIGH && currentMillis - previousMillis >= interval) {
+//    driveDirection = FORWARD;
+//    previousMillis = currentMillis;
+//  }
+//  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == LOW && currentMillis - previousMillis >= interval) {
+//    driveDirection = FORWARD;
+//    previousMillis = currentMillis;
+//  }
   //  else {
   //    driveDirection = FORWARD;
   //  }
 
+  if (topButtonState == HIGH && bottomButtonState == LOW) {
+    driveDirection = BACKWARD;
+    previousMillis = currentMillis;
+  }
+  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == LOW) {
+    driveDirection = BACKWARD;
+    previousMillis = currentMillis;
+  }
+  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == HIGH) {
+    driveDirection = BACKWARD;
+    previousMillis = currentMillis;
+  }
+  else if (topButtonState == LOW && bottomButtonState == HIGH) {
+    driveDirection = FORWARD;
+    previousMillis = currentMillis;
+  }
+  else if (topButtonState == LOW && bottomButtonState == LOW && bottomButtonWas == HIGH) {
+    driveDirection = FORWARD;
+    previousMillis = currentMillis;
+  }
+  else if (topButtonState == LOW && bottomButtonState == LOW && topButtonWas == LOW) {
+    driveDirection = FORWARD;
+    previousMillis = currentMillis;
+  }
+
+
   myMotor->step(numberOfSteps, driveDirection, DOUBLE);
-  Serial.print("MOTOR DRIVING: ");
   Serial.print("\t");    // prints a tab
+  Serial.print("MOTOR DRIVING: ");
   Serial.print(driveDirection);
   Serial.println("");
 }
