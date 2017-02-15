@@ -1,5 +1,5 @@
-##Extruder Control
-#What you'll need:
+#Extruder Control
+##What you'll need:
 [Arduino Uno R3](https://www.google.com/webhp?sourceid=chrome-instant&rlz=1C5CHFA_enUS639US640&ion=1&espv=2&ie=UTF-8#q=arduino+uno+r3)
 
 [Adafruit Motor Shield](https://www.adafruit.com/product/1438)
@@ -13,7 +13,7 @@ x2 resistors (for pull down)
 Potentiometer
 
 [Arduino IDE](https://www.arduino.cc/en/main/software) downloaded and Installed
-#Install Adafruit's Stepper Library (V2)
+##Install Adafruit's Stepper Library (V2)
 You can do this from the Arduino IDE by going to ''Sketch -> Include Library -> Manage Libraries'' and search for the library by name.
 
 
